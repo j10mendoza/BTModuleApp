@@ -20,7 +20,7 @@ import android.widget.Toast;
 public class RemoteBluetooth extends Activity {
 	
 	// Layout view
-	private TextView mTitle;
+	//private TextView mTitle;
 	
 	// Intent request codes
     private static final int REQUEST_CONNECT_DEVICE = 1;
@@ -45,6 +45,13 @@ public class RemoteBluetooth extends Activity {
     private BluetoothCommandService mCommandService = null;
 	
     /** Called when the activity is first created. */
+    /**
+     * onCreate the device is queried for bluetooth adapters.
+     * If it doesn't have any it will return.
+     * Otherwise it will continue. 
+     * 
+     * onStart will then be called next.
+     * 	**/
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +61,7 @@ public class RemoteBluetooth extends Activity {
         // Set up the window layout
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_remote_bluetooth);
-        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);
+        getWindow().setFeatureInt(Window.FEATURE_NO_TITLE, R.layout.custom_title);
         
         // Set up the custom title
         //mTitle = (TextView) findViewById(R.id.title_left_text);
@@ -75,6 +82,18 @@ public class RemoteBluetooth extends Activity {
 
     }
 
+    /**
+     * 
+     * onStart() the user will be asked to enable bluetooth if
+     * it has not already been turn on. 
+     * 
+     * startActivityForResult will allow to app to continue if 
+     * the user selects to turn on the bluetooth. Otherwise,
+     * an exception will be thrown. 
+     * 
+     * setupCommand() initializes mCommandService to set up bluetooth
+     * connection.
+     * **/
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -134,7 +153,22 @@ public class RemoteBluetooth extends Activity {
         }
     }
 	
-	// The Handler that gets information back from the BluetoothChatService
+	// The Handler that gets information back from the BluetoothCommandService
+	/**
+	 * 
+	 * The handler "handles" message between the BluetoothCommandService
+	 * and the RemoteBluetooth objects.
+	 * 
+	 * The BluetoothCommandService executes two threads in order to get
+	 * bluetooth comm up and running from a "Not Connected" to "Connected".
+	 * The ConnectThread handles establishing the connection while the 
+	 * ConnectedThread handles the data transfer via bluetooth.
+	 * 
+	 * The handler transitions to different connected states and toasts
+	 * to the user when it has connected to another device or has lost 
+	 * the connection. 
+	 * 
+	 * **/
 	private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -156,6 +190,7 @@ public class RemoteBluetooth extends Activity {
 
                     break;
                 case BluetoothCommandService.STATE_LISTEN:
+                	//TODO: will be implemented for client-server comm
                 case BluetoothCommandService.STATE_NONE:
                     //mTitle.setText(R.string.title_not_connected);
                 	System.out.println("State None");
@@ -176,6 +211,14 @@ public class RemoteBluetooth extends Activity {
             }
         }
     };
+    
+    /**
+     * 
+     * This activity method is used to exit if user has chosen not to enable
+     * the bluetooth adapter or to get the MAC address from the remote
+     * device to connect to the device. 
+     * 
+     * **/
 	
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {

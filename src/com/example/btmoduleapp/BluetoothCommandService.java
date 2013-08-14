@@ -104,8 +104,14 @@ public class BluetoothCommandService {
         // Cancel any thread currently running a connection
         if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
 
-        // Start the thread to connect with the given device
+        
+        /**Starts thread by setting up the device with a socket for comm**/
         mConnectThread = new ConnectThread(device);
+        /**
+         * Can be considered as a reseting the connectThread.
+         * By this time this thread should have started a 
+         * connectedThread to handle comm.
+         * **/
         mConnectThread.start();
         setState(STATE_CONNECTING);
     }
